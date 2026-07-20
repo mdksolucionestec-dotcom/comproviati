@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comprobación de Viáticos · MDreieck</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh;padding-bottom:40px}
+.hdr{background:#1a1080;color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hlogo{width:42px;height:42px;background:#fff;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hlogo img{width:100%;height:100%;object-fit:contain}
+.hdr h1{font-size:15px;font-weight:800}
+.hdr p{font-size:11px;opacity:.75;margin-top:1px}
+.hero{background:linear-gradient(135deg,#1a1080,#2e75b6);color:#fff;padding:28px 16px;text-align:center}
+.hero h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.hero p{font-size:13px;opacity:.85;line-height:1.5}
+main{padding:16px;max-width:560px;margin:0 auto}
+.card{background:#fff;border:1px solid #dde4ee;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card h2{font-size:12px;font-weight:800;color:#1a1080;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:600;color:#556;margin-bottom:4px}
+.field input,.field select{width:100%;border:1px solid #ccd4e0;border-radius:8px;padding:10px 12px;font-size:14px;color:#1a1a1a;background:#fff;outline:none;font-family:inherit;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:#1a1080;box-shadow:0 0 0 2px rgba(26,16,128,.1)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:block;width:100%;padding:14px;background:#1a1080;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;margin-bottom:10px}
+.btn:active{opacity:.85}
+.btn.green{background:#145c2f}
+.btn.outline{background:#fff;color:#1a1080;border:2px solid #1a1080}
+.viaje-card{background:#fff;border:1px solid #dde4ee;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;touch-action:manipulation}
+.viaje-card:active{background:#f0f4ff}
+.viaje-ico{width:44px;height:44px;background:#e8ecf8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.viaje-info h3{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:2px}
+.viaje-info p{font-size:12px;color:#778}
+.viaje-badge{margin-left:auto;background:#e8ecf8;color:#1a1080;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.viaje-badge.open{background:#e8f4ec;color:#145c2f}
+.empty{text-align:center;padding:32px 16px;color:#aaa;font-size:14px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1080;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;transition:transform .3s;z-index:999;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{background:#145c2f}
+.toast.err{background:#c0392b}
+</style></head><body>
+<div class="hdr">
+  <div class="hlogo"><img src="data:image/jpeg;base64,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ANBvSf8Av3JR9dofzAeFUV7of2a/En/Qa0n/AL4kpP8Ahm3xJ21nSf8AvmSj67R/mA8Mp0cjxSJJExWVGDIw6hgcg17gf2bvE3bV9JP4PTT+zf4nHTVdJP8A33T+uUX9oD6C+FXimPxh4J07VQwNwyeVcL/dlXhvz6/jXX15D8DPh/4j8AzajbareWNzpt0BIqwFtySjjPPYj+Qr16vn66jGo1B3RIUHpRQehrIDyvxVdax4W8Y3WswQmexulVWJBK4A+6SPukV2/g7ULPVNIF5p8ZiSWRmkjPVXJ+YVHJbarE+oobe1vrS4kZo4nk2lQR0bIORWLa+FNV03S9KttMv0haO7Nxd7SQGBP3R6gDjFAHZaldLZWNxcuRtiQvz3wK87+HF1JZeLNZ0u5mWVpj54dTkM3U/of0ruddtrm6hght44niMytMrtjKA5wPxxXN6n4Zv/APhNbPWdLS2hhhCq6Ftpccg8AccHH4UAdv296878W65qF1rGr6PZPDFa2tg8s29NxfK5wD2+8K6bw5p+q2moatJql4LiCabdbqDnYvP5dhj2rF1/wvqEviC/1DTHt2S/tGtpUmYjaSAMjH0FAGJoOvy6d4f8M6bbSLC935jPMy7tiBz0Hck12/g7VLnVtFSe/iMVyrtG4KldxH8QB9a5RvBOq2+m6LLaXNsdU01m25yEZS27BPqDmu60mO9S0B1KSN7pjuYRjCJ/sr7UAef/AA6ka+8b+Iby6y06kopPVV34wPwAr0W1tobZ52hUL5z+Y4H97AGf0rkx4d1DRvFFzquiLBPb3gImt5XKbSTnIOD3q3rOl6/dpp72uoJBKtyJZ1UkKE/uj1x79aANTxVpw1XQL6zPWSI7fZhyP1ri/hzftqejWWlykmS0nJlU9kXlR/31x+Fekgda4b/hEb6ztPEJ0i4S3u76YNBIDjanUjPbnNAHdDpRVbTYp4dPto7uTzbhI1WR/wC82OTVmgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/Z" alt="MD"></div>
+  <div><h1>Comprobación de Viáticos</h1><p>MDreieck S.A. de C.V.</p></div>
+</div>
+<div class="hero">
+  <h2>📋 Mis viajes</h2>
+  <p>Agrega gastos durante el viaje y genera la comprobación al terminar</p>
+</div>
+<main>
+  <div id="viajes-list"></div>
+  <button class="btn" onclick="showNuevoViaje()">+ Nuevo viaje</button>
+
+  <!-- Modal nuevo viaje -->
+  <div id="modal-nuevo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end">
+    <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-height:90vh;overflow-y:auto">
+      <h2 style="font-size:16px;font-weight:800;color:#1a1080;margin-bottom:16px">Nuevo viaje</h2>
+      <div class="field"><label>Nombre del técnico</label><input type="text" id="nv-tecnico" placeholder="Nombre completo"></div>
+      <div class="field"><label>Nombre del proyecto</label><input type="text" id="nv-proyecto" placeholder="Ej: PUEBLA, CRUZ AZUL..."></div>
+      <div class="row2">
+        <div class="field"><label>Fecha inicio</label><input type="date" id="nv-inicio"></div>
+        <div class="field"><label>Fecha fin</label><input type="date" id="nv-fin"></div>
+      </div>
+      <div class="field"><label>No. Ticket (depósito)</label><input type="text" id="nv-ticket" placeholder="Número de ticket de depósito"></div>
+      <button class="btn green" onclick="crearViaje()">✅ Crear viaje</button>
+      <button class="btn outline" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const SURL = 'https://script.google.com/macros/s/AKfycbyyGlsjZtXH-bhP6GDp6WjXxI1c4WuQ6mj8RqBxAgelMSg_SQOl6yYTftp8Thb-b6Ih/exec';
+const SHEET_ID = '1AjEUB8nYDjqDzLF8F7TjeLx6Es-h7TiNSoYzKCSzhzM';
+
+function getViajes(){
+  return JSON.parse(localStorage.getItem('cv_viajes')||'[]');
+}
+function saveViajes(v){
+  localStorage.setItem('cv_viajes',JSON.stringify(v));
+}
+
+function renderViajes(){
+  const list = document.getElementById('viajes-list');
+  const viajes = getViajes();
+  if(!viajes.length){
+    list.innerHTML='<div class="empty">📂 No tienes viajes aún.<br>Crea uno para empezar.</div>';
+    return;
+  }
+  list.innerHTML = viajes.map((v,i)=>{
+    const gastos = v.gastos||[];
+    const total = gastos.reduce((s,g)=>s+(parseFloat(g.total)||0),0);
+    const status = v.cerrado?'Cerrado':'Abierto';
+    const badgeClass = v.cerrado?'':'open';
+    return `<div class="viaje-card" onclick="abrirViaje(${i})">
+      <div class="viaje-ico">🧳</div>
+      <div class="viaje-info">
+        <h3>${v.folio||'...'} · ${v.proyecto}</h3>
+        <p>${v.tecnico} · ${gastos.length} gasto(s) · ${fmt(total)}</p>
+        <p style="color:#aaa;font-size:11px">${v.inicio} → ${v.fin}</p>
+      </div>
+      <div class="viaje-badge ${badgeClass}">${status}</div>
+    </div>`;
+  }).join('');
+}
+
+function showNuevoViaje(){
+  document.getElementById('modal-nuevo').style.display='flex';
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('nv-inicio').value=hoy;
+}
+
+function closeModal(){
+  document.getElementById('modal-nuevo').style.display='none';
+}
+
+async function crearViaje(){
+  const tecnico = document.getElementById('nv-tecnico').value.trim();
+  const proyecto = document.getElementById('nv-proyecto').value.trim().toUpperCase();
+  const inicio = document.getElementById('nv-inicio').value;
+  const fin = document.getElementById('nv-fin').value;
+  const ticket = document.getElementById('nv-ticket').value.trim();
+  if(!tecnico||!proyecto||!inicio){toast('Completa los campos obligatorios','err');return;}
+
+  // Obtener consecutivo del proyecto
+  let folio = '';
+  try{
+    const r = await fetch(SURL+'?accion=getConsec&proyecto='+encodeURIComponent(proyecto)+'&sheet='+SHEET_ID);
+    const d = await r.json();
+    folio = 'COMP-'+proyecto+'-'+String(d.consec).padStart(3,'0');
+  }catch(e){
+    // Fallback local
+    const viajes = getViajes();
+    const mismo = viajes.filter(v=>v.proyecto===proyecto).length+1;
+    folio = 'COMP-'+proyecto+'-'+String(mismo).padStart(3,'0');
+  }
+
+  const viajes = getViajes();
+  viajes.unshift({folio, tecnico, proyecto, inicio, fin, ticket, gastos:[], cerrado:false, creado:new Date().toISOString()});
+  saveViajes(viajes);
+  closeModal();
+  renderViajes();
+  toast('✅ Viaje creado: '+folio,'ok');
+}
+
+function abrirViaje(i){
+  sessionStorage.setItem('cv_viaje_idx',i);
+  window.location.href='gastos.html';
+}
+
+function fmt(n){return '$'+Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show '+(type==='err'?'err':type==='ok'?'ok':'');
+  setTimeout(()=>el.className='toast',3000);
+}
+
+renderViajes();
+</script></body></html>
