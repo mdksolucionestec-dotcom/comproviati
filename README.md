@@ -1,2 +1,0 @@
-# comproviati
-compro viaticos
