@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reiniciar / Desinstalar — Comprobación de viáticos</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center;
+         font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+         background:#1A1080; color:#fff; padding:24px; }
+  .card { max-width:420px; width:100%; background:rgba(255,255,255,.08);
+          border:1px solid rgba(255,255,255,.15); border-radius:16px; padding:28px;
+          box-shadow:0 10px 40px rgba(0,0,0,.35); }
+  h1 { font-size:1.25rem; margin:0 0 .5rem; }
+  p  { font-size:.95rem; line-height:1.5; opacity:.9; margin:.4rem 0; }
+  button { margin-top:18px; width:100%; padding:14px; font-size:1rem; font-weight:600;
+           border:0; border-radius:10px; background:#fff; color:#1A1080; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:default; }
+  #log { margin-top:16px; font-size:.85rem; white-space:pre-wrap;
+         background:rgba(0,0,0,.25); border-radius:10px; padding:12px; min-height:48px; }
+  .ok { color:#9effa0; } .err { color:#ff9e9e; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Reiniciar / desinstalar la app</h1>
+    <p>Esto borra la copia guardada en este equipo: desregistra el service worker,
+       elimina todas las cachés y limpia el almacenamiento local de la app.</p>
+    <p>Tus facturas, Drive y datos en línea <b>no</b> se tocan — solo la copia local.</p>
+    <button id="go">Destruir copia local</button>
+    <div id="log" aria-live="polite"></div>
+  </div>
+<script>
+  const log = document.getElementById('log');
+  const btn = document.getElementById('go');
+  const line = (t, cls) => { const d=document.createElement('div'); if(cls)d.className=cls; d.textContent=t; log.appendChild(d); };
+  btn.addEventListener('click', async () => {
+    btn.disabled = true; log.textContent = '';
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+        line(`Service workers desregistrados: ${regs.length}`);
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+        line('Cachés borradas: ' + (keys.length ? keys.join(', ') : '(ninguna)'));
+      }
+      try { localStorage.clear(); sessionStorage.clear(); line('Almacenamiento local limpiado.'); } catch (e) {}
+      line('✅ Listo. Cierra esta pestaña y, si la instalaste, borra el ícono.', 'ok');
+    } catch (e) {
+      line('Error: ' + e.message, 'err');
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
